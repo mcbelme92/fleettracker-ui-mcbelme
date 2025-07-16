@@ -1,5 +1,6 @@
 import { Container, Typography } from "@mui/material"
 import type React from "react"
+import VehicleListPage from "../pages/VehicleListPage"
 
 const VehicleListView: React.FC = () => {
   return (
@@ -7,7 +8,7 @@ const VehicleListView: React.FC = () => {
       <Typography variant="h4" gutterBottom>
         Lista de Vehículos
       </Typography>
-      {/* Aquí va la tabla o componente VehicleTable */}
+      <VehicleListPage />
     </Container>
   )
 }
