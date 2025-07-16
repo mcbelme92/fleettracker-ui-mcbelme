@@ -8,7 +8,6 @@ const VehicleListView: React.FC = () => {
       <Typography variant="h4" gutterBottom>
         Lista de Vehículos
       </Typography>
-      {/* Aquí va la tabla o componente VehicleTable */}
       <VehicleListPage />
     </Container>
   )

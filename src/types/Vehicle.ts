@@ -1,8 +1,12 @@
 export interface Vehicle {
   id: number;
-  plate: string;
-  brand: string;
+  licensePlate: string;
+  make: string;
   model: string;
   year: number;
   status: string;
+  location: { lat: number; lng: number };
+  lastService: string;
+  odometer: number;
+  gpsActive: boolean;
 }

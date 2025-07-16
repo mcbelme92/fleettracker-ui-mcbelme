@@ -1,33 +1,49 @@
-import React from "react";
-import { DataGrid, type GridColDef } from "@mui/x-data-grid";
-import { type Vehicle } from "../types/Vehicle";
+import {
+  DataGrid,
+  type DataGridProps,
+  type GridColDef,
+  type GridRowIdGetter,
+  type GridValidRowModel,
+} from "@mui/x-data-grid";
 
-interface VehicleTableProps {
-  vehicles: Vehicle[];
+interface ReusableTableProps<T extends GridValidRowModel> {
+  rows: T[];
+  columns: GridColDef[];
+  pageSize?: number;
+  page?: number;
+  getRowId?: GridRowIdGetter<T>;
+  restProps?: Partial<DataGridProps>;
 }
 
-const columns: GridColDef[] = [
-  { field: "plate", headerName: "Placa", width: 130 },
-  { field: "brand", headerName: "Marca", width: 130 },
-  { field: "model", headerName: "Modelo", width: 130 },
-  { field: "year", headerName: "Año", width: 100, type: "number" },
-  { field: "status", headerName: "Estado", width: 140 },
-];
 
-const VehicleTable: React.FC<VehicleTableProps> = ({ vehicles }) => {
+function VehicleTable<T extends GridValidRowModel>({
+  rows,
+  columns,
+  pageSize = 10,
+  page = 0,
+  getRowId = (row) => row.id,
+  restProps = {},
+}: Readonly<ReusableTableProps<T>>) {
   return (
-    <div style={{ height: 400, width: "100%" }}>
+    <div style={{ height: 500, width: "100%" }}>
       <DataGrid
-        rows={vehicles}
+        rows={rows}
         columns={columns}
-        pageSizeOptions={[5, 10]}
+        getRowId={getRowId}
         initialState={{
-          pagination: { paginationModel: { pageSize: 10, page: 0 } },
+          pagination: {
+            paginationModel: {
+              pageSize,
+              page,
+            },
+          },
         }}
+        pageSizeOptions={[5, 10, 20, 50]}
         disableRowSelectionOnClick
+        {...restProps}
       />
     </div>
   );
-};
+}
 
 export default VehicleTable;
