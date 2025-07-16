@@ -1,12 +1,21 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import VehicleListView from "../views/VehicleListView";
+// src/router/index.tsx
+import { BrowserRouter, useRoutes } from "react-router-dom";
+import { Suspense } from "react";
+import { appRoutes } from "./routes";
+
+function RoutesWrapper() {
+  const element = useRoutes(appRoutes);
+  return (
+    <Suspense fallback={<div>Cargando vista...</div>}>
+      {element}
+    </Suspense>
+  );
+}
 
 export default function AppRouter() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<VehicleListView />} />
-      </Routes>
+      <RoutesWrapper />
     </BrowserRouter>
   );
 }
