@@ -1,16 +1,18 @@
 import { useEffect, useRef, useState } from "react";
 import { type GridColDef, type GridPaginationModel } from "@mui/x-data-grid";
 import type { Vehicle } from "../types/Vehicle";
-import { useApiRequest } from "../hook/useApiRequest";
+import { useApiRequest } from "../hooks/useApiRequest";
 import {
   VEHICLE_LIMIT_KEY,
   VEHICLE_PAGE_KEY,
   VEHICLE_STORAGE_KEY,
   VEHICLE_TOTAL_KEY,
   VEHICLES_ENDPOINT,
-} from "../constants/api";
+} from "../constants/constants";
 import CustomDataGrid from "../components/CustomDataGrid";
-import { useVehicleSelectors } from "../hook/useVehicleSelectors";
+import { useVehicleSelectors } from "../hooks/useVehicleSelectors";
+import { VehicleFilter } from "./components/VehicleFilter";
+import { useNavigate } from "react-router-dom";
 
 const columns: GridColDef[] = [
   { field: "licensePlate", headerName: "Placa", width: 120 },
@@ -23,37 +25,60 @@ const columns: GridColDef[] = [
 ];
 
 const VehicleListPage = () => {
- const {
-  vehicles, page, limit, totalVehicles,
-  searchQuery, statusFilter,
-  setVehicles, setPage, setLimit, setTotalVehicles
-} = useVehicleSelectors();
+  const navigate = useNavigate();
+  
+  const [hydrated, setHydrated] = useState(false);
+  const {
+    vehicles,
+    page,
+    limit,
+    totalVehicles,
+    searchQuery,
+    statusFilter,
+    setVehicles,
+    setPage,
+    setLimit,
+    setTotalVehicles,
+    setSearchQuery,
+    setStatusFilter,
+    shouldRefresh,
+    setShouldRefresh
+  } = useVehicleSelectors();
 
   const { request, isLoading, error } = useApiRequest<Vehicle[]>();
 
-  const [hydrated, setHydrated] = useState(false);
-  useEffect(() => {
-    const rPage = localStorage.getItem(VEHICLE_PAGE_KEY);
-    const rLimit = localStorage.getItem(VEHICLE_LIMIT_KEY);
-    const rVeh = localStorage.getItem(VEHICLE_STORAGE_KEY);
-    const rTotal = localStorage.getItem(VEHICLE_TOTAL_KEY);
+useEffect(() => {
+  if (shouldRefresh) {
+    skipFirstFetch.current = false;
+    setShouldRefresh(false);
+  }
 
-    if (rPage) setPage(JSON.parse(rPage));
-    if (rLimit) setLimit(JSON.parse(rLimit));
-    if (rVeh) setVehicles(JSON.parse(rVeh));
-    if (rTotal) setTotalVehicles(JSON.parse(rTotal));
+  const rPage = localStorage.getItem(VEHICLE_PAGE_KEY);
+  const rLimit = localStorage.getItem(VEHICLE_LIMIT_KEY);
+  const rVeh = localStorage.getItem(VEHICLE_STORAGE_KEY);
+  const rTotal = localStorage.getItem(VEHICLE_TOTAL_KEY);
+  const rSearchQuery = localStorage.getItem("VEHICLE_SEARCH_QUERY");
+  const rStatusFilter = localStorage.getItem("VEHICLE_STATUS_FILTER");
 
-    setHydrated(true); // ya estás listo
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  if (rPage) setPage(JSON.parse(rPage));
+  if (rLimit) setLimit(JSON.parse(rLimit));
+  if (rVeh) {
+    setVehicles(JSON.parse(rVeh));
+  } else {
+    skipFirstFetch.current = false; // <-- Forzar fetch si no hay vehículos
+  }
+  if (rTotal) setTotalVehicles(JSON.parse(rTotal));
+  if (rSearchQuery) setSearchQuery(rSearchQuery);
+  if (rStatusFilter) setStatusFilter(rStatusFilter);
+
+  setHydrated(true);
+}, [shouldRefresh]);
 
   const skipFirstFetch = useRef(true);
 
-  // 2. Fetch solo **después** de hidratar y al cambiar page/limit/search
   useEffect(() => {
     if (!hydrated) return;
 
-    // Evita que se ejecute en el primer render tras la hidratación
     if (skipFirstFetch.current) {
       skipFirstFetch.current = false;
       return;
@@ -63,7 +88,12 @@ const VehicleListPage = () => {
       const res = await request({
         url: VEHICLES_ENDPOINT,
         method: "GET",
-        params: { _page: page, _limit: limit, q: searchQuery || undefined, status: statusFilter || undefined }
+        params: {
+          _page: page,
+          _limit: limit,
+          q: searchQuery || undefined,
+          status: statusFilter || undefined,
+        },
       });
       if (!res) return;
 
@@ -83,7 +113,7 @@ const VehicleListPage = () => {
     };
 
     fetchData();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hydrated, page, limit, searchQuery, statusFilter]);
 
   const handlePage = (m: GridPaginationModel) => {
@@ -91,29 +121,34 @@ const VehicleListPage = () => {
     setLimit(m.pageSize);
   };
 
-return (
-    error ? (
-      <p>Error al cargar: {error.message}</p>
-  
+  const handleRowClick = (params: { id: number | string }) => {
+  navigate(`/vehicles/${params.id}`);
+  };
+
+  return error ? (
+    <p>Error al cargar: {error.message}</p>
   ) : (
+    <>
+      <VehicleFilter />
       <CustomDataGrid
-      rows={vehicles}
-      columns={columns}
-      pageSize={limit}
-      page={page - 1}
-      getRowId={(row) => row.id}
-      restProps={{
-        paginationModel: {
-          page: page - 1,
-          pageSize: limit,
-        },
-        onPaginationModelChange: handlePage,
-        paginationMode: "server",
-        rowCount: totalVehicles,
-        loading: isLoading,
-      }}
-    />
-  )
+        rows={vehicles}
+        columns={columns}
+        pageSize={limit}
+        page={page - 1}
+        getRowId={(row) => row.id}
+        restProps={{
+          paginationModel: {
+            page: page - 1,
+            pageSize: limit,
+          },
+          onPaginationModelChange: handlePage,
+          paginationMode: "server",
+          rowCount: totalVehicles,
+          loading: isLoading,
+          onRowClick: handleRowClick,
+        }}
+      />
+    </>
   );
 };
 

@@ -1,6 +1,30 @@
 import { useState, useCallback } from "react";
 import type { AxiosRequestConfig, AxiosResponse } from "axios";
-import { api } from "../service/api";
+import { api } from "../services/api";
+/**
+ * Custom hook para realizar solicitudes HTTP usando Axios.
+ * Maneja estado local para la respuesta, carga y errores.
+ *
+ * @template T - Tipo de dato esperado en la respuesta.
+ *
+ * @returns {{
+ *   data: T | null,
+ *   isLoading: boolean,
+ *   error: Error | null,
+ *   request: (config: AxiosRequestConfig) => Promise<AxiosResponse<T> | null>
+ * }}
+ *
+ * @example
+ * const { data, isLoading, error, request } = useApiRequest<User[]>();
+ *
+ * useEffect(() => {
+ *   request({ url: "/users", method: "GET" });
+ * }, []);
+ *
+ * @remarks
+ * Este hook encapsula lógica común para llamadas API con manejo de estado.
+ * Puedes usarlo en cualquier componente React para evitar repetir lógica de fetch.
+ */
 
 export function useApiRequest<T = unknown>() {
   const [data, setData] = useState<T | null>(null);
