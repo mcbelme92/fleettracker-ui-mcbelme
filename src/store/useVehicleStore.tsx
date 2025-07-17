@@ -2,8 +2,6 @@ import { create } from "zustand";
 import type { Vehicle } from "../types/Vehicle";
 
 interface VehicleState {
-  hasFetched: boolean;
-  setHasFetched: (value: boolean) => void;
   vehicles: Vehicle[];
   totalVehicles: number;
   page: number;
@@ -11,6 +9,7 @@ interface VehicleState {
   selectedVehicle: Vehicle | null;
   searchQuery: string;
   statusFilter: string;
+  shouldRefresh: boolean; 
   setVehicles: (vehicles: Vehicle[]) => void;
   setTotalVehicles: (total: number) => void;
   setSelectedVehicle: (vehicle: Vehicle | null) => void;
@@ -18,6 +17,7 @@ interface VehicleState {
   setStatusFilter: (status: string) => void;
   setPage: (page: number) => void;
   setLimit: (limit: number) => void;
+  setShouldRefresh: (refresh: boolean) => void; 
 }
 
 export const useVehicleStore = create<VehicleState>((set) => ({
@@ -28,6 +28,7 @@ export const useVehicleStore = create<VehicleState>((set) => ({
   selectedVehicle: null,
   searchQuery: "",
   statusFilter: "",
+  shouldRefresh: false,
   setVehicles: (vehicles) => set({ vehicles }),
   setSelectedVehicle: (vehicle) => set({ selectedVehicle: vehicle }),
   setSearchQuery: (query) => set({ searchQuery: query }),
@@ -35,6 +36,5 @@ export const useVehicleStore = create<VehicleState>((set) => ({
   setPage: (page) => set({ page }),
   setLimit: (limit) => set({ limit }),
   setTotalVehicles: (total: number) => set({ totalVehicles: total }),
-  hasFetched: false,
-  setHasFetched: (value) => set({ hasFetched: value }),
+  setShouldRefresh: (refresh) => set({ shouldRefresh: refresh })
 }));
