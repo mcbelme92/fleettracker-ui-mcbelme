@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import { type GridColDef, type GridPaginationModel } from "@mui/x-data-grid";
 import type { Vehicle } from "../types/Vehicle";
 import { useApiRequest } from "../hook/useApiRequest";
-import { useVehicleStore } from "../store/useVehicleStore";
 import {
   VEHICLE_LIMIT_KEY,
   VEHICLE_PAGE_KEY,
@@ -11,6 +10,7 @@ import {
   VEHICLES_ENDPOINT,
 } from "../constants/api";
 import CustomDataGrid from "../components/CustomDataGrid";
+import { useVehicleSelectors } from "../hook/useVehicleSelectors";
 
 const columns: GridColDef[] = [
   { field: "licensePlate", headerName: "Placa", width: 120 },
@@ -23,17 +23,11 @@ const columns: GridColDef[] = [
 ];
 
 const VehicleListPage = () => {
-  const vehicles = useVehicleStore((state) => state.vehicles);
-  const searchQuery = useVehicleStore((state) => state.searchQuery);
-  const statusFilter = useVehicleStore((state) => state.statusFilter);
-  const page = useVehicleStore((state) => state.page);
-  const limit = useVehicleStore((state) => state.limit);
-  const totalVehicles = useVehicleStore((state) => state.totalVehicles);
-
-  const setVehicles = useVehicleStore((state) => state.setVehicles);
-  const setTotalVehicles = useVehicleStore((state) => state.setTotalVehicles);
-  const setPage = useVehicleStore((state) => state.setPage);
-  const setLimit = useVehicleStore((state) => state.setLimit);
+ const {
+  vehicles, page, limit, totalVehicles,
+  searchQuery, statusFilter,
+  setVehicles, setPage, setLimit, setTotalVehicles
+} = useVehicleSelectors();
 
   const { request, isLoading, error } = useApiRequest<Vehicle[]>();
 
