@@ -20,7 +20,7 @@ function VehicleTable<T extends GridValidRowModel>({
   rows,
   columns,
   pageSize = 10,
-  page = 0,
+  page = 1,
   getRowId = (row) => row.id,
   restProps = {},
 }: Readonly<ReusableTableProps<T>>) {
