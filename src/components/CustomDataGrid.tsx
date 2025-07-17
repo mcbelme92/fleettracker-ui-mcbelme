@@ -16,7 +16,7 @@ interface ReusableTableProps<T extends GridValidRowModel> {
 }
 
 
-function VehicleTable<T extends GridValidRowModel>({
+function CustomDataGrid<T extends GridValidRowModel>({
   rows,
   columns,
   pageSize = 10,
@@ -46,4 +46,4 @@ function VehicleTable<T extends GridValidRowModel>({
   );
 }
 
-export default VehicleTable;
+export default CustomDataGrid;

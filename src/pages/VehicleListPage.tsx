@@ -1,5 +1,4 @@
 import { useEffect } from "react";
-import VehicleTable from "../components/VehicleTable";
 import { type GridColDef, type GridPaginationModel } from "@mui/x-data-grid";
 import type { Vehicle } from "../types/Vehicle";
 import { useApiRequest } from "../hook/useApiRequest";
@@ -7,6 +6,7 @@ import { useVehicleStore } from "../store/useVehicleStore";
 import {
   VEHICLES_ENDPOINT,
 } from "../constants/api";
+import CustomDataGrid from "../components/CustomDataGrid";
 
 const columns: GridColDef[] = [
   { field: "licensePlate", headerName: "Placa", width: 120 },
@@ -68,11 +68,13 @@ const VehicleListPage = () => {
     setLimit(model.pageSize);
   };
 
-  if (isLoading) return <p>Cargando vehículos...</p>;
-  if (error) return <p>Error al cargar: {error.message}</p>;
 
-  return (
-    <VehicleTable
+return (
+    error ? (
+      <p>Error al cargar: {error.message}</p>
+  
+  ) : (
+      <CustomDataGrid
       rows={vehicles}
       columns={columns}
       pageSize={limit}
@@ -86,8 +88,10 @@ const VehicleListPage = () => {
         onPaginationModelChange: handlePaginationChange,
         paginationMode: "server",
         rowCount: totalVehicles,
+        loading: isLoading,
       }}
     />
+  )
   );
 };
 
