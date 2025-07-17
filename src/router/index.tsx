@@ -1,12 +1,17 @@
-// src/router/index.tsx
 import { BrowserRouter, useRoutes } from "react-router-dom";
 import { Suspense } from "react";
 import { appRoutes } from "./routes";
+import FullPageLoader from "../components/FullPageLoader";
+
 
 function RoutesWrapper() {
   const element = useRoutes(appRoutes);
   return (
-    <Suspense fallback={<div>Cargando vista...</div>}>
+    <Suspense
+      fallback={
+        <FullPageLoader  />
+      }
+    >
       {element}
     </Suspense>
   );
