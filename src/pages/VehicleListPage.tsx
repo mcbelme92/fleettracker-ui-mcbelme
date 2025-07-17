@@ -1,8 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import VehicleTable from "../components/VehicleTable";
-import { type GridColDef } from "@mui/x-data-grid";
+import { type GridColDef, type GridPaginationModel } from "@mui/x-data-grid";
 import type { Vehicle } from "../types/Vehicle";
-import { getVehicles } from "../service/vehicleService";
+import { useApiRequest } from "../hook/useApiRequest";
+import { useVehicleStore } from "../store/useVehicleStore";
+import {
+  VEHICLES_ENDPOINT,
+} from "../constants/api";
 
 const columns: GridColDef[] = [
   { field: "licensePlate", headerName: "Placa", width: 120 },
@@ -15,19 +19,76 @@ const columns: GridColDef[] = [
 ];
 
 const VehicleListPage = () => {
-  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
-  const [loading, setLoading] = useState(false);
+  const vehicles = useVehicleStore((state) => state.vehicles);
+  const searchQuery = useVehicleStore((state) => state.searchQuery);
+  const statusFilter = useVehicleStore((state) => state.statusFilter);
+  const page = useVehicleStore((state) => state.page);
+  const limit = useVehicleStore((state) => state.limit);
+  const totalVehicles = useVehicleStore((state) => state.totalVehicles);
+
+  const setVehicles = useVehicleStore((state) => state.setVehicles);
+  const setTotalVehicles = useVehicleStore((state) => state.setTotalVehicles);
+  const setPage = useVehicleStore((state) => state.setPage);
+  const setLimit = useVehicleStore((state) => state.setLimit);
+
+  const { request, isLoading, error } = useApiRequest<Vehicle[]>();
+
+  console.log("🔥 useEffect ejecutado con:", { page, limit });
 
   useEffect(() => {
-    getVehicles(1, 10).then((data) => {
-      setVehicles(data);
-      setLoading(true);
-    });
-  }, []);
+    const fetchData = async () => {
+      const response = await request({
+        url: VEHICLES_ENDPOINT,
+        method: "GET",
+        params: {
+          _page: page,
+          _limit: limit,
+          q: searchQuery || undefined,
+          status: statusFilter || undefined,
+        },
+      });
 
-  if (!loading) return <p>Cargando...</p>;
+      if (response?.data) {
+        setVehicles(response.data);
+      }
 
-  return <VehicleTable rows={vehicles} columns={columns} pageSize={10} getRowId={(row) => row.id} />;
+      const totalCountHeader = response?.headers["x-total-count"];
+      if (totalCountHeader) {
+        setTotalVehicles(parseInt(totalCountHeader, 10));
+      }
+    };
+
+    fetchData();
+  }, [page, limit, searchQuery, statusFilter, request, setVehicles, setTotalVehicles]);
+
+  const handlePaginationChange = (model: GridPaginationModel) => {
+    console.log("📥 Cambio paginación:", model);
+
+    setPage(model.page + 1); // DataGrid usa base 0, json-server base 1
+    setLimit(model.pageSize);
+  };
+
+  if (isLoading) return <p>Cargando vehículos...</p>;
+  if (error) return <p>Error al cargar: {error.message}</p>;
+
+  return (
+    <VehicleTable
+      rows={vehicles}
+      columns={columns}
+      pageSize={limit}
+      page={page - 1}
+      getRowId={(row) => row.id}
+      restProps={{
+        paginationModel: {
+          page: page - 1,
+          pageSize: limit,
+        },
+        onPaginationModelChange: handlePaginationChange,
+        paginationMode: "server",
+        rowCount: totalVehicles,
+      }}
+    />
+  );
 };
 
 export default VehicleListPage;
