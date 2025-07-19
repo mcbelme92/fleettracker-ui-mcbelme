@@ -15,7 +15,6 @@ interface ReusableTableProps<T extends GridValidRowModel> {
   restProps?: Partial<DataGridProps>;
 }
 
-
 function CustomDataGrid<T extends GridValidRowModel>({
   rows,
   columns,
@@ -25,24 +24,22 @@ function CustomDataGrid<T extends GridValidRowModel>({
   restProps = {},
 }: Readonly<ReusableTableProps<T>>) {
   return (
-    <div style={{ height: 500, width: "100%" }}>
-      <DataGrid
-        rows={rows}
-        columns={columns}
-        getRowId={getRowId}
-        initialState={{
-          pagination: {
-            paginationModel: {
-              pageSize,
-              page,
-            },
+    <DataGrid
+      rows={rows}
+      columns={columns}
+      getRowId={getRowId}
+      initialState={{
+        pagination: {
+          paginationModel: {
+            pageSize,
+            page,
           },
-        }}
-        pageSizeOptions={[5, 10, 20, 50]}
-        disableRowSelectionOnClick
-        {...restProps}
-      />
-    </div>
+        },
+      }}
+      pageSizeOptions={[5, 10, 20, 50]}
+      disableRowSelectionOnClick
+      {...restProps}
+    />
   );
 }
 
