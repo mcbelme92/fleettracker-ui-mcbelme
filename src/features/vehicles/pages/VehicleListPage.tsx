@@ -1,18 +1,19 @@
 import { useEffect, useRef, useState } from "react";
 import { type GridColDef, type GridPaginationModel } from "@mui/x-data-grid";
 import type { Vehicle } from "../types/Vehicle";
-import { useApiRequest } from "../hooks/useApiRequest";
+import { useApiRequest } from "../../../shared/hooks/useApiRequest";
 import {
   VEHICLE_LIMIT_KEY,
   VEHICLE_PAGE_KEY,
   VEHICLE_STORAGE_KEY,
   VEHICLE_TOTAL_KEY,
   VEHICLES_ENDPOINT,
-} from "../constants/constants";
-import CustomDataGrid from "../components/CustomDataGrid";
+} from "../../../shared/constants/constants";
+import CustomDataGrid from "../../../shared/components/CustomDataGrid";
 import { useVehicleSelectors } from "../hooks/useVehicleSelectors";
-import { VehicleFilter } from "./components/VehicleFilter";
+import { VehicleFilter } from "../components/VehicleFilter";
 import { useNavigate } from "react-router-dom";
+import { Box } from "@mui/material";
 
 const columns: GridColDef[] = [
   { field: "licensePlate", headerName: "Placa", width: 120 },
@@ -26,7 +27,6 @@ const columns: GridColDef[] = [
 
 const VehicleListPage = () => {
   const navigate = useNavigate();
-  
   const [hydrated, setHydrated] = useState(false);
   const {
     vehicles,
@@ -65,7 +65,7 @@ useEffect(() => {
   if (rVeh) {
     setVehicles(JSON.parse(rVeh));
   } else {
-    skipFirstFetch.current = false; // <-- Forzar fetch si no hay vehículos
+    skipFirstFetch.current = false;
   }
   if (rTotal) setTotalVehicles(JSON.parse(rTotal));
   if (rSearchQuery) setSearchQuery(rSearchQuery);
@@ -125,31 +125,34 @@ useEffect(() => {
   navigate(`/vehicles/${params.id}`);
   };
 
-  return error ? (
-    <p>Error al cargar: {error.message}</p>
-  ) : (
-    <>
-      <VehicleFilter />
-      <CustomDataGrid
-        rows={vehicles}
-        columns={columns}
-        pageSize={limit}
-        page={page - 1}
-        getRowId={(row) => row.id}
-        restProps={{
-          paginationModel: {
-            page: page - 1,
-            pageSize: limit,
-          },
-          onPaginationModelChange: handlePage,
-          paginationMode: "server",
-          rowCount: totalVehicles,
-          loading: isLoading,
-          onRowClick: handleRowClick,
-        }}
-      />
-    </>
-  );
+  if (error) {
+  return <p>Error al cargar: {error.message}</p>;
+  }
+  
+
+  return  (
+  <Box sx={{ height: 600, width: '100%' }}>
+    <VehicleFilter />
+    <CustomDataGrid
+      rows={vehicles}
+      columns={columns}
+      pageSize={limit}
+      page={page - 1}
+      getRowId={(row) => row.id}
+      restProps={{
+        paginationModel: {
+          page: page - 1,
+          pageSize: limit,
+        },
+        onPaginationModelChange: handlePage,
+        paginationMode: "server",
+        rowCount: totalVehicles,
+        loading: isLoading,
+        onRowClick: handleRowClick,
+      }}
+    />
+  </Box>
+);
 };
 
 export default VehicleListPage;

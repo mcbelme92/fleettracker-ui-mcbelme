@@ -1,25 +1,17 @@
 import { BrowserRouter, useRoutes } from "react-router-dom";
-import { Suspense } from "react";
 import { appRoutes } from "./routes";
-import FullPageLoader from "../components/FullPageLoader";
-
 
 function RoutesWrapper() {
   const element = useRoutes(appRoutes);
-  return (
-    <Suspense
-      fallback={
-        <FullPageLoader  />
-      }
-    >
-      {element}
-    </Suspense>
-  );
+  return element;
 }
 
 export default function AppRouter() {
   return (
-    <BrowserRouter>
+    <BrowserRouter  future={{
+        v7_startTransition: true,
+        v7_relativeSplatPath: true,
+  }}>
       <RoutesWrapper />
     </BrowserRouter>
   );

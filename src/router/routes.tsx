@@ -1,10 +1,8 @@
-// src/router/app.routes.tsx
-import { lazy } from "react";
+import { lazy, Suspense } from "react";
 import { Navigate, type RouteObject } from "react-router-dom";
-import VehicleDetailView from "../views/VehicleDetailView";
-
-const VehicleListView = lazy(() => import("../views/VehicleListView"));
-
+import FullPageLoader from "../shared/components/FullPageLoader";
+const VehicleDetailView = lazy(() => import("../features/vehicles/views/VehicleDetailView"));
+const VehicleListView = lazy(() => import("../features/vehicles/views/VehicleListView"));
 
 export const appRoutes: RouteObject[] = [
   {
@@ -13,11 +11,18 @@ export const appRoutes: RouteObject[] = [
   },
   {
     path: "/vehicles",
-    element: <VehicleListView />,
+    element: (
+      <Suspense fallback={<FullPageLoader text="Cargando lista de vehiculos" />}>
+        <VehicleListView />
+      </Suspense>
+    ),
   },
   {
-  path: "/vehicles/:id",
-  element: <VehicleDetailView />,
-}
-  
+    path: "/vehicles/:id",
+    element: (
+      <Suspense fallback={<FullPageLoader text="Cargando detalle del vehículo..." />}>
+        <VehicleDetailView />
+      </Suspense>
+    ),
+  },
 ];

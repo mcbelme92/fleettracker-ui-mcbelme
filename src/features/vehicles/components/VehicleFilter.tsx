@@ -1,6 +1,6 @@
-import SearchAndFilterBar from "../../components/SearchAndFilterBar";
-import { VEHICLE_SEARCH_QUERY, VEHICLE_STATUS_FILTER } from "../../constants/constants";
-import { useVehicleSelectors } from "../../hooks/useVehicleSelectors";
+import SearchAndFilterBar from "../../../shared/components/SearchAndFilterBar";
+import { VEHICLE_SEARCH_QUERY, VEHICLE_STATUS_FILTER } from "../../../shared/constants/constants";
+import { useVehicleSelectors } from "../hooks/useVehicleSelectors";
 
 export const VehicleFilter = () => {
   const { searchQuery, statusFilter, setSearchQuery, setStatusFilter } = useVehicleSelectors();
